@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEB_GAME — Игровая платформа</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --text: #f0f0ff;
+    --muted: #7070a0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* BACKGROUND */
+  .bg-orbs {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.18;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -150px; }
+  .orb2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; right: -100px; }
+  .orb3 { width: 300px; height: 300px; background: #5cf0fc; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,10,15,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 120px 20px 80px;
+  }
+  .hero-content { max-width: 800px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,92,252,0.15);
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 100px; padding: 8px 18px;
+    font-size: 13px; color: #a88fff; font-weight: 500;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge-dot { width: 6px; height: 6px; background: #7c5cfc; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 span {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 20px; color: var(--muted); line-height: 1.7;
+    max-width: 560px; margin: 0 auto 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .btn-group {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--accent), #9b5cfc);
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 16px; padding: 16px 36px; border-radius: 100px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 40px rgba(124,92,252,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 60px rgba(124,92,252,0.6); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent; color: var(--text);
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 16px; padding: 16px 32px; border-radius: 100px;
+    text-decoration: none; border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+  .dl-note { margin-top: 20px; font-size: 13px; color: var(--muted); animation: fadeUp 0.6s 0.4s ease both; }
+
+  /* STATS */
+  .stats {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 60px;
+    padding: 0 20px 100px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; animation: fadeUp 0.6s 0.5s ease both; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  /* FEATURES */
+  .section {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto; padding: 100px 40px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800;
+    text-align: center; margin-bottom: 16px;
+  }
+  .section-sub { text-align: center; color: var(--muted); font-size: 17px; margin-bottom: 64px; }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(124,92,252,0.05), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(124,92,252,0.3); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feat-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(252,92,125,0.1));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 20px;
+    border: 1px solid rgba(124,92,252,0.2);
+  }
+  .feat-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 10px; }
+  .feat-desc { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+  /* STEPS */
+  .steps {
+    display: flex; flex-direction: column; gap: 24px; max-width: 600px; margin: 0 auto;
+  }
+  .step {
+    display: flex; gap: 20px; align-items: flex-start;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
+  }
+  .step-text h4 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 6px; }
+  .step-text p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  /* CTA */
+  .cta-section {
+    position: relative; z-index: 1;
+    text-align: center; padding: 80px 40px 120px;
+  }
+  .cta-box {
+    max-width: 700px; margin: 0 auto;
+    background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(252,92,125,0.05));
+    border: 1px solid rgba(124,92,252,0.2);
+    border-radius: 32px; padding: 64px 48px;
+  }
+  .cta-box h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+  .cta-box p { color: var(--muted); font-size: 17px; margin-bottom: 40px; }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 13px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .stats { gap: 32px; }
+    .section { padding: 60px 20px; }
+    .cta-box { padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<nav>
+  <div class="logo">WEB_GAME</div>
+  <ul class="nav-links">
+    <li><a href="#features">Возможности</a></li>
+    <li><a href="#install">Установка</a></li>
+    <li><a href="#download">Скачать</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Версия 2.0 — теперь с друзьями и чатом
+    </div>
+    <h1>Твоя игровая<br><span>платформа</span></h1>
+    <p class="hero-sub">Загружай HTML-игры, делись с друзьями, играй в один клик. Как Яндекс Игры — но твоя собственная.</p>
+    <div class="btn-group">
+      <a href="https://drive.google.com/uc?export=download&id=1WyZLB1JKYj5wVwgBf_RhAiufJTpNqiL6" class="btn-primary" id="download">
+        ⬇ Скачать для Windows
+      </a>
+      <a href="#features" class="btn-secondary">Узнать больше →</a>
+    </div>
+    <p class="dl-note">Бесплатно · Windows 10/11 · ~74 МБ</p>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">2.0</div><div class="stat-label">Актуальная версия</div></div>
+  <div class="stat"><div class="stat-num">HTML</div><div class="stat-label">Поддержка игр</div></div>
+  <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Игр можно добавить</div></div>
+  <div class="stat"><div class="stat-num">0₽</div><div class="stat-label">Полностью бесплатно</div></div>
+</div>
+
+<section class="section" id="features">
+  <h2 class="section-title">Всё что тебе нужно</h2>
+  <p class="section-sub">Полноценная игровая платформа прямо на твоём компьютере</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feat-icon">🎮</div>
+      <div class="feat-title">Загрузка игр</div>
+      <div class="feat-desc">Добавляй HTML-игры с иконкой, описанием и категорией. Запускай в полноэкранном режиме без лишнего интерфейса.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">👥</div>
+      <div class="feat-title">Друзья и чат</div>
+      <div class="feat-desc">Ищи пользователей по нику, добавляй в друзья и общайся прямо в приложении с выбором цвета сообщений.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">⭐</div>
+      <div class="feat-title">Избранное</div>
+      <div class="feat-desc">Добавляй понравившиеся игры в избранное — они всегда будут под рукой в отдельном разделе.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">✏️</div>
+      <div class="feat-title">Редактирование</div>
+      <div class="feat-desc">Меняй описание, превью и файл игры в любое время. Удаляй ненужные игры из своего профиля.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">🎨</div>
+      <div class="feat-title">Настройки темы</div>
+      <div class="feat-desc">Тёмная и светлая тема, 7 акцентных цветов, размер шрифта, стиль карточек и анимации.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">👤</div>
+      <div class="feat-title">Профиль</div>
+      <div class="feat-desc">Смена ника, пароля и аватара. Статистика запусков, свои игры и список друзей — всё в одном месте.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="install">
+  <h2 class="section-title">Установка за 3 шага</h2>
+  <p class="section-sub">Никаких сложностей — просто скачай и играй</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Скачай установщик</h4>
+        <p>Нажми кнопку "Скачать для Windows" ниже. Файл ~74 МБ, скачается за минуту.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Запусти установщик</h4>
+        <p>Дважды кликни на скачанный файл. Если Windows покажет предупреждение — нажми "Всё равно запустить".</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Готово!</h4>
+        <p>Иконка WEB_GAME появится на рабочем столе автоматически. Зарегистрируйся и начинай добавлять игры!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section" id="download">
+  <div class="cta-box">
+    <h2>Готов начать?</h2>
+    <p>Скачай WEB_GAME бесплатно и создай свою игровую библиотеку прямо сейчас</p>
+    <a href="https://drive.google.com/uc?export=download&id=1WyZLB1JKYj5wVwgBf_RhAiufJTpNqiL6" class="btn-primary" style="font-size:18px;padding:18px 48px;">
+      ⬇ Скачать WEB_GAME 2.0
+    </a>
+    <p style="margin-top:16px;font-size:13px;color:var(--muted);">Windows 10 / 11 · 64-bit · Бесплатно</p>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 WEB_GAME · Сделано с ❤️</p>
+</footer>
+
+</body>
+</html>
